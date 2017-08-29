@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.lang.Math"/>
+<fullyQualifiedTypeName name="midi.Instrument"/>
+<fullyQualifiedTypeName name="music.NoteEvent"/>
+<fullyQualifiedTypeName name="calculator.Lexer"/>
+<fullyQualifiedTypeName name="calculator.Lexer.TokenMismatchException"/>
+<fullyQualifiedTypeName name="calculator.LexerTest"/>
+<fullyQualifiedTypeName name="javax.swing.tree.DefaultTreeModel"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="java.lang.Double"/>
+<fullyQualifiedTypeName name="calculator.Lexer.Token"/>
+<fullyQualifiedTypeName name="calculator.Parser"/>
+<fullyQualifiedTypeName name="calculator.Parser.Value"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="java.io.FileReader"/>
+<fullyQualifiedTypeName name="java.io.FileNotFoundException"/>
+<fullyQualifiedTypeName name="immutable.EmptyImList"/>
+<fullyQualifiedTypeName name="sat.formula.Formula"/>
+<fullyQualifiedTypeName name="sat.env.Environment"/>
+<fullyQualifiedTypeName name="sat.env.Variable"/>
+<fullyQualifiedTypeName name="java.util.Iterator"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="sat.formula.PosLiteral"/>
+<fullyQualifiedTypeName name="sat.formula.Literal"/>
+<fullyQualifiedTypeName name="sat.formula.Clause"/>
+<fullyQualifiedTypeName name="sat.formula.NegLiteral"/>
+<fullyQualifiedTypeName name="sat.env.Bool"/>
+</qualifiedTypeNameHistroy>

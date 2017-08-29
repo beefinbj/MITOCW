@@ -1,0 +1,87 @@
+package sat.formula;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+
+public class FormulaTest {    
+    Literal a = PosLiteral.make("a");
+    Literal b = PosLiteral.make("b");
+    Literal c = PosLiteral.make("c");
+    Literal d = PosLiteral.make("d");
+    Literal na = a.getNegation();
+    Literal nb = b.getNegation();
+    Literal nc = c.getNegation();
+    Literal nd = d.getNegation();
+
+    // make sure assertions are turned on!  
+    // we don't want to run test cases without assertions too.
+    // see the handout to find out how to turn them on.
+    @Test(expected=AssertionError.class)
+    public void testAssertionsEnabled() {
+        assert false;
+    }
+    
+    
+    @Test
+    public void basicTest() {
+    	Formula single = new Formula(a);
+    	System.out.println(single.toString());
+    	Formula conj = single.and(new Formula(b));
+    	System.out.println(conj.toString());
+    	Formula disj = single.or(new Formula(c));
+    	System.out.println(disj.toString());
+    	Formula emp = new Formula();
+    	Formula conj_emp = emp.or(single);
+    	System.out.println(conj_emp);
+    	Formula not = single.not();
+    	System.out.println(not.toString());
+    }
+    
+    @Test
+    public void fancyTest() {
+    	Formula single = new Formula(a);
+    	Formula conj = single.and(new Formula(b));
+    	Formula disj = single.or(new Formula(c));
+    	Formula not = single.not();
+    	
+    	System.out.println("Fancy NOT tests");
+    	Formula not_disj = disj.not();
+    	System.out.println(not_disj.toString());;
+    	Formula not_conj = conj.not();
+    	System.out.println(not_conj.toString());
+    	Formula not_not = not.not();
+    	System.out.println(not_not.toString());
+    	
+    	System.out.println("Fancy AND tests");
+    	Formula conj_2 = (new Formula(na)).and(new Formula(nd));
+    	Formula disj_2 = (new Formula(na)).or(new Formula(nd));
+    	Formula conj_conj = conj.and(conj_2);
+    	Formula conj_disj = disj.and(disj_2);
+    	Formula conj_disjconj = conj.and(disj);
+    	System.out.println(conj_conj.toString());
+    	System.out.println(conj_disj.toString());
+    	System.out.println(conj_disjconj.toString());
+    	
+    	System.out.println("Fancy OR tests");
+    	Formula disj_conj = conj.or(conj_2);
+    	Formula disj_disj = disj.or(disj_2);
+    	Formula disj_disjconj = conj.or(disj);
+    	System.out.println(disj_conj.toString());
+    	System.out.println(disj_disj.toString());
+    	System.out.println(disj_disjconj.toString());
+    }
+    
+    
+    // Helper function for constructing a clause.  Takes
+    // a variable number of arguments, e.g.
+    //  clause(a, b, c) will make the clause (a or b or c)
+    // @param e,...   literals in the clause
+    // @return clause containing e,...
+    private Clause make(Literal... e) {
+        Clause c = new Clause();
+        for (int i = 0; i < e.length; ++i) {
+            c = c.add(e[i]);
+        }
+        return c;
+    }
+}

@@ -1,0 +1,220 @@
+/**
+ * Author: dnj, Hank Huang
+ * Date: March 7, 2009
+ * 6.005 Elements of Software Construction
+ * (c) 2007-2009, MIT 6.005 Staff
+ */
+package sat.formula;
+
+import immutable.*;
+import immutable.ImList;
+
+import java.util.Iterator;
+
+import sat.env.Variable;
+
+/**
+ * Formula represents an immutable boolean formula in
+ * conjunctive normal form, intended to be solved by a
+ * SAT solver.
+ */
+public class Formula {
+    private final ImList<Clause> clauses;
+
+    // Formula = NegLiteral+PosLiteral+Literal+Clause+and(Formula, Formula)+or(Formula, Formula)+not(Formula,Formula) 
+    
+    // Rep invariant:
+    //      clauses != null
+    //      clauses contains no null elements (ensured by spec of ImList)
+    //
+    // Note: although a formula is intended to be a set,  
+    // the list may include duplicate clauses without any problems. 
+    // The cost of ensuring that the list has no duplicates is not worth paying.
+    //
+    //    
+    //    Abstraction function:
+    //        The list of clauses c1,c2,...,cn represents 
+    //        the boolean formula (c1 and c2 and ... and cn)
+    //        
+    //        For example, if the list contains the two clauses (a,b) and (!c,d), then the
+    //        corresponding formula is (a or b) and (!c or d).
+
+    void checkRep() {
+        assert this.clauses != null : "SATProblem, Rep invariant: clauses non-null";
+    }
+
+    /**
+     * Create a new problem for solving that contains no clauses (that is the
+     * vacuously true problem)
+     * 
+     * @return the true problem
+     */
+    public Formula() {
+        this.clauses = new EmptyImList<Clause>();
+        checkRep();
+    }
+
+    /**
+     * Create a new problem for solving that contains a single clause with a
+     * single literal
+     * 
+     * @return the problem with a single clause containing the literal l
+     */
+    public Formula(Literal l) {
+    	Clause cla = new Clause(l);
+    	this.clauses = new NonEmptyImList(cla);
+        checkRep();
+    }
+
+    /**
+     * Create a new problem for solving that contains a single clause
+     * 
+     * @return the problem with a single clause c
+     */
+    public Formula(Clause c) {
+    	this.clauses = new NonEmptyImList(c);
+    	checkRep();
+    }
+    
+    /**
+     * Create a new problem for solving that contains clauses
+     * 
+     * @return the problem with clauses cla
+     */
+    
+    public Formula(ImList<Clause> cla) {
+    	this.clauses = cla;
+    	checkRep();
+    }
+
+    /**
+     * Add a clause to this problem
+     * 
+     * @return a new problem with the clauses of this, but c added
+     */
+    public Formula addClause(Clause c) {
+    	ImList<Clause> newCla = this.clauses.add(c);
+    	return new Formula(newCla);
+    }
+
+    /**
+     * Get the clauses of the formula.
+     * 
+     * @return list of clauses
+     */
+    public ImList<Clause> getClauses() {
+        return this.clauses;
+    }
+
+    /**
+     * Iterator over clauses
+     * 
+     * @return an iterator that yields each clause of this in some arbitrary
+     *         order
+     */
+    public Iterator<Clause> iterator() {
+        return new ImListIterator(this.clauses);
+    }
+
+    /**
+     * @return a new problem corresponding to the conjunction of this and p
+     */
+    public Formula and(Formula p) {
+        Iterator<Clause> to_add = p.iterator();
+        Formula newform = this;
+        while (to_add.hasNext()) {
+        	newform = newform.addClause(to_add.next());
+        }
+        return newform;
+    }
+
+    /**
+     * @return a new problem corresponding to the disjunction of this and p
+     */
+    public Formula or(Formula p) {       
+    	// TODO: implement this.
+        // Hint: you'll need to use the distributive law to preserve conjunctive normal form, i.e.:
+        //   to do (a & b) .or (c & d),
+        //   you'll need to make (a | b) & (a | c) & (b | c) & (b | d)
+        Formula newform = new Formula();
+        if (this.getClauses().isEmpty()) {
+        	return p;
+        }
+        else if (p.getClauses().isEmpty()) {
+        	return this;
+        }
+        Iterator<Clause> left_disjunct = this.iterator();
+        while (left_disjunct.hasNext()) {
+        	newform.and(clauseOrFormula(left_disjunct.next(),p));
+        }
+        return newform;
+    }
+    
+    public Formula clauseOrFormula(Clause c, Formula p) {
+    	System.out.println("OR-ing:");
+    	System.out.println("Clause:");
+    	System.out.println(c.toString());
+    	System.out.println("Formula:");
+    	System.out.println(p.toString());
+    	Formula newform = new Formula();
+    	Iterator<Clause> conjuncts = p.iterator();
+    	while (conjuncts.hasNext()) {
+    		Clause conj = conjuncts.next();
+    		Clause new_conj = conj.merge(c);
+    		//System.out.println("Result:");
+    		//System.out.println(new_conj.toString());
+    		if (new_conj != null) {
+    			System.out.println("Adding clause");
+    			System.out.println(new_conj.toString());
+    			newform.addClause(new_conj);
+    		}
+    	}
+    	//System.out.println(newform);
+    	return newform;
+    }
+
+    /**
+     * @return a new problem corresponding to the negation of this
+     */
+    public Formula not() {
+        // Hint: you'll need to apply DeMorgan's Laws (http://en.wikipedia.org/wiki/De_Morgan's_laws)
+        // to move the negation down to the literals, and the distributive law to preserve 
+        // conjunctive normal form, i.e.:
+        //   if you start with (a | b) & c,
+        //   you'll need to make !((a | b) & c) 
+        //                       => (!a & !b) | !c            (moving negation down to the literals)
+        //                       => (!a | !c) & (!b | !c)    (conjunctive normal form)
+    	Iterator<Clause> iter_clause = this.iterator();
+    	Formula output = new Formula();
+    	while (iter_clause.hasNext()) {
+    		Clause next_clause = iter_clause.next();
+    		Formula not_clause = new Formula();
+    		Iterator<Literal> iter_lit = next_clause.iterator();
+    		while (iter_lit.hasNext()) {
+    			Literal next_lit = iter_lit.next();
+    			Literal neg_lit = next_lit.getNegation();
+    			not_clause = not_clause.and(new Formula(neg_lit));
+    		}
+    		output = output.or(not_clause);
+    	}
+    	return output;
+    }
+
+    /**
+     * 
+     * @return number of clauses in this
+     */
+    public int getSize() {
+        return this.clauses.size();
+    }
+
+    /**
+     * @return string representation of this formula
+     */
+    public String toString() {
+        String result = "Problem[";
+        for (Clause c : clauses)
+            result += "\n" + c;
+        return result + "]";
+    }
+}
